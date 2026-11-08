@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="km" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mean AI - បកប្រែវីដេអូទៅជាភាសាខ្មែរ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        redAccent: {
+                            400: '#ef4444',
+                            500: '#dc2626',
+                            600: '#b91c1c',
+                        },
+                        darkBg: '#0B0F19',
+                        cardBg: '#131B2E',
+                        borderCol: '#1E293B'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Hanuman', 'Khmer OS Battambang', 'sans-serif'],
+                        bokor: ['Khmer OS Bokor', 'Hanuman', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for Khmer Bokor & Hanuman -->
+    <link href="https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&family=Khmer+OS+Bokor&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Khmer+OS+Bokor&display=swap');
+        .bokor-font {
+            font-family: 'Khmer OS Bokor', cursive, serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0F19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E293B;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-redAccent-500 selection:text-white">
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 w-11/12 max-w-md pointer-events-none"></div>
+
+    <!-- App Container (Mobile First Wrapper) -->
+    <div class="w-full max-w-md mx-auto flex flex-col min-h-screen bg-darkBg border-x border-borderCol shadow-2xl relative overflow-x-hidden">
+
+        <!-- Header / App Bar -->
+        <header class="sticky top-0 z-40 bg-darkBg/90 backdrop-blur-md border-b border-borderCol px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-redAccent-400 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold bg-gradient-to-r from-redAccent-400 via-rose-200 to-red-500 bg-clip-text text-transparent">Mean AI</h1>
+                    <p class="text-xs text-slate-400">ប្រព័ន្ធបកប្រែវីដេអូ AI ជំនាន់ថ្មី</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="showInfoModal()" class="p-2 rounded-xl bg-cardBg border border-borderCol hover:border-redAccent-500/50 text-slate-300 transition" title="ព័ត៌មាន">
+                    <i data-lucide="help-circle" class="w-5 h-5 text-redAccent-400"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs (Options at the top) -->
+        <nav class="bg-cardBg/90 border-b border-borderCol p-1.5 grid grid-cols-3 gap-1 sticky top-[65px] z-30 backdrop-blur-md">
+            <button onclick="switchTab('input')" id="tab-btn-input" class="flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-medium transition-all bg-redAccent-500 text-white shadow-md shadow-red-500/20">
+                <i data-lucide="video" class="w-4 h-4 mb-1"></i>
+                <span>បញ្ចូលវីដេអូ</span>
+            </button>
+            <button onclick="switchTab('processing')" id="tab-btn-processing" class="flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                <i data-lucide="cpu" class="w-4 h-4 mb-1"></i>
+                <span>លទ្ធផល & ដំណើរការ</span>
+            </button>
+            <button onclick="switchTab('guide')" id="tab-btn-guide" class="flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                <i data-lucide="book-open" class="w-4 h-4 mb-1"></i>
+                <span>របៀបប្រើប្រាស់</span>
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 pb-24 overflow-y-auto">
+
+            <!-- TAB 1: VIDEO INPUT -->
+            <section id="tab-input" class="p-4 space-y-6">
+                <!-- Banner Promo -->
+                <div class="relative rounded-2xl bg-gradient-to-r from-red-950/40 via-cardBg to-slate-900 border border-redAccent-500/30 p-4 overflow-hidden shadow-lg">
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-redAccent-500/10 rounded-full blur-xl pointer-events-none"></div>
+                    <div class="flex items-start space-x-3">
+                        <div class="p-2.5 bg-redAccent-500/20 rounded-xl text-redAccent-400 border border-redAccent-500/30 shrink-0">
+                            <i data-lucide="wand-2" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-bold text-redAccent-400 mb-1">បកប្រែគ្រប់ភាសាទៅជាខ្មែរ ១០០% ធម្មជាតិ</h2>
+                            <p class="text-xs text-slate-300 leading-relaxed">រក្សាសំឡេងដើម (ប្រុស/ស្រី/សត្វ) រួមជាមួយអក្សររត់ Subtitle ពុម្ពអក្សរ Khmer Bokor ប្រណីត។</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Methods Container -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="folder-input" class="w-4 h-4 text-redAccent-400"></i>
+                        ជ្រើសរើសប្រភពវីដេអូ
+                    </h3>
+
+                    <!-- Option A: File Upload -->
+                    <div class="card bg-cardBg border border-borderCol rounded-2xl p-4 hover:border-redAccent-500/40 transition group">
+                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-700 group-hover:border-redAccent-500/60 rounded-xl p-6 cursor-pointer bg-slate-900/40 transition">
+                            <div class="w-12 h-12 rounded-full bg-redAccent-500/10 flex items-center justify-center text-redAccent-400 mb-3 group-hover:scale-110 transition-transform">
+                                <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-sm font-medium text-slate-200 mb-1">ទាញយកវីដេអូពីទូរសព្ទ (File)</span>
+                            <span class="text-xs text-slate-400 text-center">MP4, MOV, MKV, AVI (អតិបរមា 500MB)</span>
+                            <input type="file" id="video-file-input" accept="video/*" class="hidden" onchange="handleFileSelected(event)">
+                        </label>
+                        <div id="file-info" class="hidden mt-3 p-3 bg-slate-900/80 rounded-xl flex items-center justify-between border border-borderCol">
+                            <div class="flex items-center space-x-3 overflow-hidden">
+                                <i data-lucide="file-video" class="w-5 h-5 text-redAccent-400 shrink-0"></i>
+                                <span id="file-name-display" class="text-xs text-slate-200 truncate">video_sample.mp4</span>
+                            </div>
+                            <button onclick="clearFileSelection()" class="text-slate-400 hover:text-red-400 p-1">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Option B: Social Media Link -->
+                    <div class="card bg-cardBg border border-borderCol rounded-2xl p-4 space-y-3">
+                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-2">
+                            <i data-lucide="link" class="w-4 h-4 text-redAccent-400"></i>
+                            បិទភ្ជាប់ដំណរភ្ជាប់ (Social Media Link)
+                        </label>
+                        <div class="flex gap-2">
+                            <div class="relative flex-1">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="globe" class="w-4 h-4"></i>
+                                </span>
+                                <input type="url" id="social-link-input" placeholder="TikTok, YouTube, Facebook, Instagram..." class="w-full pl-9 pr-3 py-2.5 bg-slate-900 border border-borderCol rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-redAccent-500 transition">
+                            </div>
+                            <button onclick="pasteFromClipboard()" class="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-xl border border-borderCol transition text-slate-200 flex items-center gap-1">
+                                <i data-lucide="clipboard" class="w-3.5 h-3.5"></i> បិទភ្ជាប់
+                            </button>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5 pt-1">
+                            <span class="text-[10px] bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">TikTok</span>
+                            <span class="text-[10px] bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">YouTube Shorts</span>
+                            <span class="text-[10px] bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">Facebook Reel</span>
+                            <span class="text-[10px] bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">Instagram</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced AI Voice & Translation Settings -->
+                <div class="card bg-cardBg border border-borderCol rounded-2xl p-4 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-4 h-4 text-redAccent-400"></i>
+                        ការកំណត់សំឡេង និងការបកប្រែ AI
+                    </h3>
+
+                    <!-- Voice Matching Mode -->
+                    <div class="space-y-2">
+                        <label class="text-xs text-slate-300 block">ប្រព័ន្ធសំឡេងឆ្លាតវៃ (Voice Cloning)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" onclick="setVoiceMode('auto')" id="vmode-auto" class="p-2.5 rounded-xl border border-redAccent-500 bg-redAccent-500/10 text-redAccent-400 text-xs font-medium flex flex-col items-center gap-1 transition">
+                                <i data-lucide="cpu" class="w-4 h-4"></i>
+                                <span>ស្វ័យប្រវត្ត (Auto)</span>
+                            </button>
+                            <button type="button" onclick="setVoiceMode('custom')" id="vmode-custom" class="p-2.5 rounded-xl border border-borderCol bg-slate-900/50 text-slate-400 text-xs font-medium flex flex-col items-center gap-1 hover:border-slate-700 transition">
+                                <i data-lucide="mic" class="w-4 h-4"></i>
+                                <span>ជ្រើសរើសសំឡេង</span>
+                            </button>
+                            <button type="button" onclick="setVoiceMode('clone')" id="vmode-clone" class="p-2.5 rounded-xl border border-borderCol bg-slate-900/50 text-slate-400 text-xs font-medium flex flex-col items-center gap-1 hover:border-slate-700 transition">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                <span>โคลនសំឡេងផ្ទាល់</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Voice Style Selection (Hidden by default, shown if custom selected) -->
+                    <div id="voice-custom-options" class="hidden space-y-2 pt-2 border-t border-slate-800">
+                        <label class="text-xs text-slate-300 block">ជ្រើសរើសសំឡេងអ្នកអាន (Voice Profile)</label>
+                        <select id="voice-preset" class="w-full p-2.5 bg-slate-900 border border-borderCol rounded-xl text-xs text-slate-200 focus:outline-none focus:border-redAccent-500">
+                            <option value="sokha">សុខា (សំឡេងស្រី ពិរោះទន់ភ្លន់)</option>
+                            <option value="dara">តារា (សំឡេងប្រុស ច្បាស់អង្រួនចិត្ត)</option>
+                            <option value="bora">បុរា (សំឡេងប្រុស ធ្ងន់បែបឯកសារ)</option>
+                            <option value="chanthy">ចន្ធី (សំឡេងស្រី វ័យក្មេងរស់រវើក)</option>
+                        </select>
+                    </div>
+
+                    <!-- Subtitle Font Style Info -->
+                    <div class="flex items-center justify-between p-3 bg-slate-900/60 rounded-xl border border-borderCol text-xs">
+                        <span class="text-slate-300">ពុម្ពអក្សរ Subtitle:</span>
+                        <span class="bokor-font text-redAccent-400 text-sm">Khmer Bokor (ស្អាតបែប Premium)</span>
+                    </div>
+                </div>
+
+                <!-- Start Processing Button -->
+                <button onclick="startProcessing()" class="w-full py-3.5 bg-gradient-to-r from-redAccent-500 via-rose-500 to-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 hover:opacity-95 transition transform active:scale-[0.98]">
+                    <i data-lucide="zap" class="w-5 h-5 fill-white"></i>
+                    <span>ចាប់ផ្តើមបកប្រែជាភាសាខ្មែរ (Ultra-Fast)</span>
+                </button>
+            </section>
+
+            <!-- TAB 2: PROCESSING & RESULT -->
+            <section id="tab-processing" class="p-4 space-y-6 hidden">
+                
+                <!-- Status Container / Progress Bar -->
+                <div id="processing-box" class="card bg-cardBg border border-borderCol rounded-2xl p-6 text-center space-y-5 shadow-xl">
+                    <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
+                        <div class="absolute inset-0 rounded-full border-4 border-slate-800"></div>
+                        <div id="progress-ring-border" class="absolute inset-0 rounded-full border-4 border-redAccent-500 border-t-transparent animate-spin"></div>
+                        <div class="text-xl font-bold text-redAccent-400" id="progress-pct">0%</div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 id="process-status-title" class="text-sm font-bold text-slate-100">កំពុងរៀបចំទិន្នន័យវីដេអូ...</h3>
+                        <p id="process-status-desc" class="text-xs text-slate-400">Mean AI កំពុងវិភាគសំឡេង និងទាញយកកូដ...</p>
+                    </div>
+
+                    <!-- Step indicators -->
+                    <div class="space-y-2 text-left pt-2 border-t border-slate-800">
+                        <div class="flex items-center justify-between text-xs" id="step-1">
+                            <span class="text-slate-400 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-slate-600" id="icon-1"></i> ១. វិភាគសំឡេង និងបែងចែកភេទ</span>
+                            <span class="text-slate-500" id="status-1">រង់ចាំ...</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs" id="step-2">
+                            <span class="text-slate-400 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-slate-600" id="icon-2"></i> ២. បកប្រែអត្ថន័យទៅជាភាសាខ្មែរ</span>
+                            <span class="text-slate-500" id="status-2">រង់ចាំ...</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs" id="step-3">
+                            <span class="text-slate-400 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-slate-600" id="icon-3"></i> ៣. បង្កើតសំឡេង AI & Subtitle Bokor</span>
+                            <span class="text-slate-500" id="status-3">រង់ចាំ...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Video Player Container (Hidden until complete) -->
+                <div id="result-box" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-redAccent-400 flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-redAccent-400"></i>
+                            វីដេអូបកប្រែរួចរាល់ (Ready)
+                        </h3>
+                        <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">ជោគជ័យ ១០០%</span>
+                    </div>
+
+                    <!-- Video Preview Player with Bokor Subtitle Overlay -->
+                    <div class="relative w-full aspect-[9/16] max-h-[420px] bg-black rounded-2xl overflow-hidden border border-borderCol shadow-2xl flex items-center justify-center group">
+                        <!-- Simulated Video Background / Canvas -->
+                        <video id="preview-video" class="w-full h-full object-cover" poster="https://placehold.co/720x1280/0B0F19/dc2626?text=Mean+AI+Translated+Video" controls autoplay muted loop playsinline>
+                            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+
+                        <!-- Subtitle Overlay in Khmer Bokor -->
+                        <div class="absolute bottom-12 inset-x-4 text-center pointer-events-none">
+                            <span id="subtitle-text" class="bokor-font text-lg md:text-xl text-rose-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] bg-black/60 px-4 py-1.5 rounded-xl border border-redAccent-500/30 inline-block leading-relaxed">
+                                "សូមស្វាគមន៍មកកាន់ Mean AI ប្រព័ន្ធបកប្រែវីដេអូដ៏អស្ចារ្យ!"
+                            </span>
+                        </div>
+
+                        <!-- Audio Badge -->
+                        <div class="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-lg border border-borderCol flex items-center gap-1.5 text-[10px] text-slate-300">
+                            <i data-lucide="volume-2" class="w-3 h-3 text-redAccent-400"></i>
+                            <span>សំឡេង AI ធម្មជាតិ (Voice Cloned)</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons: Download & Share -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="downloadVideo()" class="py-3 bg-cardBg hover:bg-slate-800 border border-redAccent-500/50 text-redAccent-400 rounded-xl font-medium text-xs flex items-center justify-center gap-2 shadow-lg transition">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>ទាញយកវីដេអូ (Save)</span>
+                        </button>
+                        <button onclick="shareVideo()" class="py-3 bg-gradient-to-r from-redAccent-500 to-red-600 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-500/20 hover:opacity-95 transition">
+                            <i data-lucide="share-2" class="w-4 h-4 fill-white"></i>
+                            <span>ចែករំលែក (Share)</span>
+                        </button>
+                    </div>
+
+                    <!-- Translate Another Button -->
+                    <button onclick="resetApp()" class="w-full py-2.5 bg-slate-900 border border-borderCol hover:border-slate-700 text-slate-400 rounded-xl text-xs flex items-center justify-center gap-2 transition">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>បកប្រែវីដេអូថ្មីផ្សេងទៀត</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- TAB 3: USER GUIDE -->
+            <section id="tab-guide" class="p-4 space-y-4 hidden">
+                <div class="card bg-cardBg border border-borderCol rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-bold text-redAccent-400 flex items-center gap-2">
+                        <i data-lucide="book-open" class="w-4 h-4 text-redAccent-400"></i>
+                        របៀបប្រើប្រាស់ Mini App "Mean AI"
+                    </h3>
+                    
+                    <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+                        <div class="flex items-start space-x-3 p-3 bg-slate-900/60 rounded-xl border border-borderCol">
+                            <div class="w-6 h-6 rounded-full bg-redAccent-500/20 text-redAccent-400 flex items-center justify-center font-bold shrink-0">១</div>
+                            <div>
+                                <strong class="text-slate-100 block mb-0.5">បញ្ចូលវីដេអូ (Video Input)</strong>
+                                អ្នកអាចជ្រើសរើសយកវីដេអូផ្ទាល់ពី File ក្នុងទូរសព្ទ ឬថតចម្លង Link ពី TikTok, YouTube, Facebook មកបិទភ្ជាប់ក្នុងប្រអប់ដំណរភ្ជាប់។
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-3 bg-slate-900/60 rounded-xl border border-borderCol">
+                            <div class="w-6 h-6 rounded-full bg-redAccent-500/20 text-redAccent-400 flex items-center justify-center font-bold shrink-0">២</div>
+                            <div>
+                                <strong class="text-slate-100 block mb-0.5">កំណត់សំឡេង AI (Voice Cloning)</strong>
+                                ប្រព័ន្ធនឹងកំណត់សំឡេងស្វ័យប្រវត្ត (ស្រី/ប្រុស/សត្វ) ១០០% តាមវីដេអូដើម ឬអ្នកអាចជ្រើសរើសសំឡេងតាមចំណូលចិត្ត។
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-3 bg-slate-900/60 rounded-xl border border-borderCol">
+                            <div class="w-6 h-6 rounded-full bg-redAccent-500/20 text-redAccent-400 flex items-center justify-center font-bold shrink-0">៣</div>
+                            <div>
+                                <strong class="text-slate-100 block mb-0.5">ដំណើរការលឿនរហ័ស (Ultra-Fast)</strong>
+                                ចុចប៊ូតុង "ចាប់ផ្តើមបកប្រែ" រួចរង់ចាំត្រឹមតែពីរបីវិនាទី AI នឹងដំណើរការបង្កើត Subtitle ពុម្ពអក្សរ Khmer Bokor យ៉ាងស្រស់ស្អាត។
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-3 bg-slate-900/60 rounded-xl border border-borderCol">
+                            <div class="w-6 h-6 rounded-full bg-redAccent-500/20 text-redAccent-400 flex items-center justify-center font-bold shrink-0">៤</div>
+                            <div>
+                                <strong class="text-slate-100 block mb-0.5">ទាញយកនិងចែករំលែក</strong>
+                                អាចមើលសាកល្បង ទាញយកទុកក្នុងទូរសព្ទ ឬ Share ទៅកាន់ Telegram, Facebook ភ្លាមៗដោយគ្មានបញ្ហា។
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-gradient-to-r from-redAccent-500/10 via-cardBg to-slate-900 border border-redAccent-500/30 text-center space-y-2">
+                    <p class="text-xs text-slate-300">មានបញ្ហាឬសំណួរក្នុងការប្រើប្រាស់?</p>
+                    <button onclick="showToast('ទាក់ទងក្រុមបច្ចេកទេស Mean AI ជោគជ័យ!', 'success')" class="px-4 py-2 bg-redAccent-500 text-white font-semibold rounded-xl text-xs shadow hover:bg-redAccent-400 transition">
+                        ទាក់ទងជំនួយ (Support)
+                    </button>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation Bar (Telegram Mini App Style Footer) -->
+        <footer class="absolute bottom-0 inset-x-0 bg-darkBg/95 backdrop-blur-md border-t border-borderCol py-2.5 px-4 flex items-center justify-around z-30">
+            <button onclick="switchTab('input')" id="footer-btn-input" class="flex flex-col items-center text-redAccent-400 transition">
+                <i data-lucide="home" class="w-5 h-5 mb-0.5"></i>
+                <span class="text-[10px]">ទំព័រដើម</span>
+            </button>
+            <button onclick="switchTab('processing')" id="footer-btn-processing" class="flex flex-col items-center text-slate-400 hover:text-slate-200 transition">
+                <i data-lucide="film" class="w-5 h-5 mb-0.5"></i>
+                <span class="text-[10px]">វីដេអូរបស់ខ្ញុំ</span>
+            </button>
+            <button onclick="switchTab('guide')" id="footer-btn-guide" class="flex flex-col items-center text-slate-400 hover:text-slate-200 transition">
+                <i data-lucide="info" class="w-5 h-5 mb-0.5"></i>
+                <span class="text-[10px]">ជំនួយ</span>
+            </button>
+        </footer>
+
+    </div>
+
+    <!-- Info Modal -->
+    <div id="info-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="card bg-cardBg border border-redAccent-500/40 rounded-2xl p-5 max-w-sm w-5/6 space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-redAccent-500/20 text-redAccent-400 flex items-center justify-center">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-redAccent-400">អំពី Mean AI</h3>
+                </div>
+                <button onclick="closeInfoModal()" class="text-slate-400 hover:text-slate-200">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                Mean AI គឺជា Mini App កម្រិតខ្ពស់សម្រាប់បកប្រែវីដេអូគ្រប់ភាសាទៅជាភាសាខ្មែរប្រកបដោយភាពត្រឹមត្រូវខ្ពស់បំផុត រួមបញ្ចូលជាមួយសំឡេងធម្មជាតិ និង Subtitle ពុម្ពអក្សរ Khmer Bokor ប្រណីត។
+            </p>
+            <div class="text-[10px] text-slate-500 text-center pt-2 border-t border-slate-800">
+                Version 2.5.0 Premium • Powered by Mean AI Engine
+            </div>
+            <button onclick="closeInfoModal()" class="w-full py-2.5 bg-redAccent-500 text-white font-semibold rounded-xl text-xs hover:bg-redAccent-400 transition">
+                យល់ព្រម
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Initialize Lucide Icons
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            setInterval(updateSubtitleText, 4000);
+        });
+
+        // Global State
+        let selectedFile = null;
+        let currentVoiceMode = 'auto';
+
+        const subtitlesList = [
+            "សូមស្វាគមន៍មកកាន់ Mean AI ប្រព័ន្ធបកប្រែវីដេអូដ៏អស្ចារ្យ!",
+            "បកប្រែគ្រប់ភាសាទៅជាភាសាខ្មែរបានយ៉ាងត្រឹមត្រូវបំផុត។",
+            "រក្សាសំឡេងដើម ប្រុស ស្រី និងសត្វ ១០០% ធម្មជាតិ។",
+            "អក្សររត់ Subtitle ពុម្ពអក្សរ Khmer Bokor ប្រណីត។"
+        ];
+        let subIndex = 0;
+
+        function updateSubtitleText() {
+            const subEl = document.getElementById('subtitle-text');
+            if(subEl) {
+                subIndex = (subIndex + 1) % subtitlesList.length;
+                subEl.textContent = `"${subtitlesList[subIndex]}"`;
+            }
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            document.getElementById('tab-input').classList.add('hidden');
+            document.getElementById('tab-processing').classList.add('hidden');
+            document.getElementById('tab-guide').classList.add('hidden');
+
+            ['input', 'processing', 'guide'].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const fBtn = document.getElementById(`footer-btn-${t}`);
+                if(btn) {
+                    btn.className = "flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
+                }
+                if(fBtn) {
+                    fBtn.className = "flex flex-col items-center text-slate-400 hover:text-slate-200 transition";
+                }
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            const activeFBtn = document.getElementById(`footer-btn-${tabName}`);
+            if(activeBtn) {
+                activeBtn.className = "flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-medium transition-all bg-redAccent-500 text-white shadow-md shadow-red-500/20";
+            }
+            if(activeFBtn) {
+                activeFBtn.className = "flex flex-col items-center text-redAccent-400 transition";
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Handle File Selection
+        function handleFileSelected(event) {
+            const file = event.target.files[0];
+            if(file) {
+                selectedFile = file;
+                document.getElementById('file-name-display').textContent = file.name;
+                document.getElementById('file-info').classList.remove('hidden');
+                showToast(`បានបញ្ចូលវីដេអូ: ${file.name}`, 'success');
+            }
+        }
+
+        function clearFileSelection() {
+            selectedFile = null;
+            document.getElementById('video-file-input').value = '';
+            document.getElementById('file-info').classList.add('hidden');
+            showToast('បានលុបវីដេអូដែលបានជ្រើសរើស', 'info');
+        }
+
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if(text) {
+                    document.getElementById('social-link-input').value = text;
+                    showToast('បានបិទភ្ជាប់ Link ជោគជ័យ!', 'success');
+                } else {
+                    showToast('គ្មានអត្ថបទក្នុង Clipboard ទេ។', 'error');
+                }
+            } catch (err) {
+                const manualLink = prompt('សូមបញ្ចូលដំណរភ្ជាប់ (URL) វីដេអូនៅទីនេះ:');
+                if(manualLink) {
+                    document.getElementById('social-link-input').value = manualLink;
+                    showToast('បានបញ្ចូល Link ជោគជ័យ!', 'success');
+                }
+            }
+        }
+
+        function setVoiceMode(mode) {
+            currentVoiceMode = mode;
+            ['auto', 'custom', 'clone'].forEach(m => {
+                const btn = document.getElementById(`vmode-${m}`);
+                if(m === mode) {
+                    btn.className = "p-2.5 rounded-xl border border-redAccent-500 bg-redAccent-500/10 text-redAccent-400 text-xs font-medium flex flex-col items-center gap-1 transition";
+                } else {
+                    btn.className = "p-2.5 rounded-xl border border-borderCol bg-slate-900/50 text-slate-400 text-xs font-medium flex flex-col items-center gap-1 hover:border-slate-700 transition";
+                }
+            });
+
+            const customOptions = document.getElementById('voice-custom-options');
+            if(mode === 'custom') {
+                customOptions.classList.remove('hidden');
+            } else {
+                customOptions.classList.add('hidden');
+            }
+        }
+
+        function startProcessing() {
+            const linkVal = document.getElementById('social-link-input').value.trim();
+            if(!selectedFile && !linkVal) {
+                showToast('សូមបញ្ចូលវីដេអូពី File ឬបិទភ្ជាប់ Link ជាមុនសិន!', 'error');
+                switchTab('input');
+                return;
+            }
+
+            switchTab('processing');
+            
+            document.getElementById('processing-box').classList.remove('hidden');
+            document.getElementById('result-box').classList.add('hidden');
+            
+            let progress = 0;
+            const pctEl = document.getElementById('progress-pct');
+            const titleEl = document.getElementById('process-status-title');
+            const descEl = document.getElementById('process-status-desc');
+
+            document.getElementById('status-1').textContent = 'កំពុងដំណើរការ...';
+            document.getElementById('status-1').className = 'text-redAccent-400 font-medium';
+            document.getElementById('icon-1').className = 'w-4 h-4 text-redAccent-400 animate-spin';
+
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 12) + 8;
+                if(progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    document.getElementById('status-1').textContent = 'រួចរាល់';
+                    document.getElementById('status-1').className = 'text-emerald-400';
+                    document.getElementById('icon-1').className = 'w-4 h-4 text-emerald-400';
+
+                    document.getElementById('status-2').textContent = 'រួចរាល់';
+                    document.getElementById('status-2').className = 'text-emerald-400';
+                    document.getElementById('icon-2').className = 'w-4 h-4 text-emerald-400';
+
+                    document.getElementById('status-3').textContent = 'រួចរាល់';
+                    document.getElementById('status-3').className = 'text-emerald-400';
+                    document.getElementById('icon-3').className = 'w-4 h-4 text-emerald-400';
+
+                    titleEl.textContent = "ការបកប្រែបានជោគជ័យ ១០០%!";
+                    descEl.textContent = "វីដេអូរបស់អ្នកត្រូវបានបង្កើតរួចរាល់ជាស្រេច។";
+
+                    setTimeout(() => {
+                        document.getElementById('processing-box').classList.add('hidden');
+                        document.getElementById('result-box').classList.remove('hidden');
+                        showToast('បកប្រែវីដេអូទៅជាភាសាខ្មែរជោគជ័យ!', 'success');
+                    }, 800);
+                }
+
+                pctEl.textContent = `${progress}%`;
+
+                if(progress > 35 && progress < 70) {
+                    titleEl.textContent = "កំពុងបកប្រែអត្ថន័យទៅជាភាសាខ្មែរ...";
+                    descEl.textContent = "កំពុងសម្រិតសម្រាំងប្រយោគឱ្យត្រូវតាមក្បួនវេយ្យាករណ៍...";
+                    
+                    document.getElementById('status-1').textContent = 'រួចរាល់';
+                    document.getElementById('status-1').className = 'text-emerald-400';
+                    document.getElementById('icon-1').className = 'w-4 h-4 text-emerald-400';
+
+                    document.getElementById('status-2').textContent = 'កំពុងដំណើរការ...';
+                    document.getElementById('status-2').className = 'text-redAccent-400 font-medium';
+                    document.getElementById('icon-2').className = 'w-4 h-4 text-redAccent-400 animate-spin';
+                } else if(progress >= 70) {
+                    titleEl.textContent = "កំពុងបង្កើតសំឡេង AI & Subtitle Bokor...";
+                    descEl.textContent = "ផ្គូផ្គងសំឡេងប្រុស ស្រី និងសត្វ រួមនឹងអក្សររត់ស្អាតបែប Premium...";
+
+                    document.getElementById('status-2').textContent = 'រួចរាល់';
+                    document.getElementById('status-2').className = 'text-emerald-400';
+                    document.getElementById('icon-2').className = 'w-4 h-4 text-emerald-400';
+
+                    document.getElementById('status-3').textContent = 'កំពុងដំណើរការ...';
+                    document.getElementById('status-3').className = 'text-redAccent-400 font-medium';
+                    document.getElementById('icon-3').className = 'w-4 h-4 text-redAccent-400 animate-spin';
+                }
+            }, 250);
+        }
+
+        function downloadVideo() {
+            showToast('កំពុងទាញយកវីដេអូរក្សាទុកក្នុងឧបករណ៍...', 'success');
+            const a = document.createElement('a');
+            a.href = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+            a.download = 'MeanAI_Translated_Khmer.mp4';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function shareVideo() {
+            if(navigator.share) {
+                navigator.share({
+                    title: 'Mean AI Translated Video',
+                    text: 'វីដេអូបកប្រែជាភាសាខ្មែរដោយ Mean AI Mini App',
+                    url: window.location.href
+                }).catch(() => {});
+            } else {
+                showToast('បានចម្លងតំណរចែករំលែកទៅក្នុង Clipboard!', 'success');
+            }
+        }
+
+        function resetApp() {
+            selectedFile = null;
+            document.getElementById('video-file-input').value = '';
+            document.getElementById('social-link-input').value = '';
+            document.getElementById('file-info').classList.add('hidden');
+            switchTab('input');
+            showToast('រួចរាល់សម្រាប់ការបកប្រែវីដេអូថ្មី', 'info');
+        }
+
+        function showInfoModal() {
+            document.getElementById('info-modal').classList.remove('hidden');
+        }
+        function closeInfoModal() {
+            document.getElementById('info-modal').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgCol = 'bg-cardBorder text-slate-100 border-redAccent-500/50';
+            let icon = 'sparkles';
+            if(type === 'success') {
+                bgCol = 'bg-slate-900 text-emerald-300 border-emerald-500/40';
+                icon = 'check-circle';
+            } else if(type === 'error') {
+                bgCol = 'bg-slate-900 text-red-300 border-red-500/40';
+                icon = 'alert-circle';
+            }
+
+            toast.className = `flex items-center space-x-2 px-4 py-3 rounded-xl border ${bgCol} shadow-xl pointer-events-auto transform translate-y-2 opacity-0 transition-all duration-300 backdrop-blur-md`;
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4 shrink-0"></i>
+                <span class="text-xs font-medium flex-1">${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
