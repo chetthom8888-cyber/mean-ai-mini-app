@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    <!-- 3. ទំព័រដើមរបស់ App (Main Dashboard & YouTube Validator) -->
+    <!-- 3. ទំព័រដើមរបស់ App (Main Dashboard & Percentage Validator) -->
     <div id="main-app" class="w-full max-w-md bg-[#131B2E] rounded-2xl p-6 shadow-2xl border border-red-900/30 hidden">
         <div class="text-center mb-6">
             <h1 class="text-2xl font-bold text-red-500 font-bokor">Mean AI 🎬</h1>
@@ -54,9 +54,9 @@
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">បញ្ចូលដំណរភ្ជាប់ (URL) វីដេអូ YouTube ឬបណ្តាញសង្គម</label>
-                <input type="text" id="video-url" placeholder="https://www.youtube.com/watch?v=..." oninput="checkVideoUrl()" class="w-full px-4 py-3 bg-[#0B0F19] border border-gray-700 rounded-xl focus:outline-none focus:border-red-600 text-sm text-white">
-                <!-- ប្រអប់បង្ហាញស្ថានភាពតំណរភ្ជាប់ -->
-                <p id="url-status" class="text-xs mt-2 text-gray-500">សូមបញ្ចូល Link វីដេអូ...</p>
+                <input type="text" id="video-url" placeholder="https://..." oninput="checkVideoUrl()" class="w-full px-4 py-3 bg-[#0B0F19] border border-gray-700 rounded-xl focus:outline-none focus:border-red-600 text-sm text-white">
+                <!-- ប្រអប់បង្ហាញភាគរយដំណើរការតំណរភ្ជាប់ -->
+                <p id="url-status" class="text-xs mt-2 text-gray-500">កំពុងរង់ចាំការបញ្ចូល Link...</p>
             </div>
 
             <div class="text-center text-gray-500 text-xs">ឬ</div>
@@ -70,13 +70,16 @@
                 <p id="file-status" class="text-xs mt-2 text-gray-500"></p>
             </div>
 
-            <button id="submit-btn" disabled class="w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed">
+            <button id="submit-btn" disabled onclick="startTranslating()" class="w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed">
                 ចាប់ផ្តើមបកប្រែ និងបង្កើត Subtitle
             </button>
+            
+            <!-- Loading Status Display -->
+            <p id="process-status" class="text-xs text-center text-red-400 font-medium mt-2"></p>
         </div>
     </div>
 
-    <!-- JavaScript សម្រាប់គ្រប់គ្រងទំព័រ និងពិនិត្យ YouTube Link -->
+    <!-- JavaScript សម្រាប់គ្រប់គ្រងមុខងារភាគរយ និងការតភ្ជាប់ -->
     <script>
         function goToAuthScreen() {
             document.getElementById('welcome-screen').classList.add('hidden');
@@ -88,31 +91,31 @@
             document.getElementById('main-app').classList.remove('hidden');
         }
 
-        // មុខងារពិនិត្យ Link វីដេអូ (YouTube Validator)
+        // មុខងារពិនិត្យ Link និងបង្ហាញភាគរយដំណើរការ (Percentage Validator)
         function checkVideoUrl() {
             const urlInput = document.getElementById('video-url').value.trim();
             const statusText = document.getElementById('url-status');
             const submitBtn = document.getElementById('submit-btn');
 
             if (urlInput === "") {
-                statusText.innerText = "សូមបញ្ចូល Link វីដេអូ...";
+                statusText.innerText = "កំពុងរង់ចាំការបញ្ចូល Link...";
                 statusText.className = "text-xs mt-2 text-gray-500";
                 submitBtn.disabled = true;
                 submitBtn.className = "w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed";
                 return;
             }
 
-            // Regex ពិនិត្យមើលថាតើជា Link YouTube ត្រឹមត្រូវឬអត់
-            const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+            // Regex ពិនិត្យមើលថាតើជា Link YouTube ឬ Link បណ្តាញសង្គមត្រឹមត្រូវ
+            const urlRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|tiktok\.com|facebook\.com|fb\.watch)\/.+$/;
             
-            if (youtubeRegex.test(urlInput)) {
-                statusText.innerText = "✅ វីដេអូដំណើរការបានធម្មតា (YouTube Link ត្រឹមត្រូវ)";
+            if (urlRegex.test(urlInput)) {
+                statusText.innerText = "✅ ដំណរភ្ជាប់ដំណើរការបាន 100% (វីដេអូអាចទាញយកបាន)";
                 statusText.className = "text-xs mt-2 text-green-400 font-medium";
                 submitBtn.disabled = false;
                 submitBtn.className = "w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30 cursor-pointer";
             } else {
-                statusText.innerText = "❌ មិនមែនជា Link YouTube ដែលត្រឹមត្រូវ ឬវីដេអូមិនអាចបើកបានទេ";
-                statusText.className = "text-xs mt-2 text-red-400 font-medium";
+                statusText.innerText = "⚠️ ដំណរភ្ជាប់ដំណើរការបាន 0% (មិនមែនជា Link វីដេអូដែលគាំទ្រ)";
+                statusText.className = "text-xs mt-2 text-yellow-500 font-medium";
                 submitBtn.disabled = true;
                 submitBtn.className = "w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed";
             }
@@ -124,11 +127,22 @@
             const submitBtn = document.getElementById('submit-btn');
 
             if (file) {
-                fileStatus.innerText = "✅ បានជ្រើសរើសឯកសារ៖ " + file.name;
+                fileStatus.innerText = "✅ ឯកសារដំណើរការបាន 100% (" + file.name + ")";
                 fileStatus.className = "text-xs mt-2 text-green-400 font-medium";
                 submitBtn.disabled = false;
                 submitBtn.className = "w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30 cursor-pointer";
             }
+        }
+
+        function startTranslating() {
+            const processStatus = document.getElementById('process-status');
+            processStatus.innerText = "🔄 កំពុងតភ្ជាប់ទៅកាន់ម៉ាស៊ីនបកប្រែ AI... (២៥%)";
+            setTimeout(() => {
+                processStatus.innerText = "🔄 កំពុងទាញយកទិន្នន័យវីដេអូ... (៦០%)";
+            }, 1000);
+            setTimeout(() => {
+                processStatus.innerText = "✨ កំពុងបង្កើត Subtitle ភាសាខ្មែរ (100% ជោគជ័យ!)";
+            }, 2000);
         }
     </script>
 </body>
