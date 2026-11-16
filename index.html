@@ -12,16 +12,51 @@
     </style>
 </head>
 <body class="min-h-screen p-4 flex flex-col items-center justify-center">
-    <div class="w-full max-w-md bg-[#131B2E] rounded-2xl p-6 shadow-2xl border border-red-900/30">
+
+    <!-- 1. ទំព័រស្វាគមន៍ (Welcome / Onboarding Screen) -->
+    <div id="welcome-screen" class="w-full max-w-md bg-[#131B2E] rounded-2xl p-6 shadow-2xl border border-red-900/30 text-center">
+        <h1 class="text-3xl font-bold text-red-500 font-bokor mb-3">Mean AI 🎬</h1>
+        <p class="text-sm text-gray-300 mb-4 leading-relaxed">
+            សូមស្វាគមន៍មកកាន់ប្រព័ន្ធបកប្រែវីដេអូ និងបង្កើត Subtitle ភាសាខ្មែរដោយស្វ័យប្រវត្តិជាមួយ AI ក្នុងកម្រិតស្តង់ដារខ្ពស់បំផុត។
+        </p>
+        <div class="bg-[#0B0F19] p-4 rounded-xl text-left text-xs text-gray-400 space-y-2 mb-6 border border-gray-800">
+            <p>✨ <b>អត្ថប្រយោជន៍ចម្បង៖</b></p>
+            <p>• បកប្រែវីដេអូពី YouTube និងបណ្តាញសង្គមផ្សេងៗជាសំឡេងនិងអត្ថបទខ្មែរ។</p>
+            <p>• បង្កើត Subtitle ពុម្ពអក្សរ Khmer Bokor ស្អាតដាច់គេ។</p>
+        </div>
+        <button onclick="goToAuthScreen()" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30">
+            យល់ព្រម និងបន្ត
+        </button>
+    </div>
+
+    <!-- 2. ទំព័រចុះឈ្មោះ ឬចូលប្រើប្រាស់ (Auth Screen) -->
+    <div id="auth-screen" class="w-full max-w-md bg-[#131B2E] rounded-2xl p-6 shadow-2xl border border-red-900/30 text-center hidden">
+        <h2 class="text-xl font-bold text-red-500 font-bokor mb-2">គណនីរបស់អ្នក</h2>
+        <p class="text-xs text-gray-400 mb-6">តើអ្នកចង់បង្កើតគណនីដើម្បីរក្សាទុកប្រវត្តិការបកប្រែដែរឬទេ?</p>
+        
+        <div class="space-y-3">
+            <button onclick="enterApp()" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30 text-sm">
+                បង្កើតគណនីថ្មី / ចូលប្រើប្រាស់
+            </button>
+            <button onclick="enterApp()" class="w-full bg-transparent hover:bg-gray-800 text-gray-400 font-medium py-3 rounded-xl transition text-sm border border-gray-700">
+                រំលង (មិនបង្កើតក៏បាន)
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. ទំព័រដើមរបស់ App (Main Dashboard & YouTube Validator) -->
+    <div id="main-app" class="w-full max-w-md bg-[#131B2E] rounded-2xl p-6 shadow-2xl border border-red-900/30 hidden">
         <div class="text-center mb-6">
             <h1 class="text-2xl font-bold text-red-500 font-bokor">Mean AI 🎬</h1>
-            <p class="text-sm text-gray-400 mt-1">ប្រព័ន្ធបកប្រែវីដេអូទៅជាភាសាខ្មែរ និង Subtitle ស្ដង់ដារ Premium</p>
+            <p class="text-sm text-gray-400 mt-1">ប្រព័ន្ធបកប្រែវីដេអូទៅជាភាសាខ្មែរ</p>
         </div>
 
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">បញ្ចូលដំណរភ្ជាប់ (URL) វីដេអូគ្រប់បណ្តាញសង្គម</label>
-                <input type="text" placeholder="https://..." class="w-full px-4 py-3 bg-[#0B0F19] border border-gray-700 rounded-xl focus:outline-none focus:border-red-600 text-sm text-white">
+                <label class="block text-sm font-medium text-gray-300 mb-2">បញ្ចូលដំណរភ្ជាប់ (URL) វីដេអូ YouTube ឬបណ្តាញសង្គម</label>
+                <input type="text" id="video-url" placeholder="https://www.youtube.com/watch?v=..." oninput="checkVideoUrl()" class="w-full px-4 py-3 bg-[#0B0F19] border border-gray-700 rounded-xl focus:outline-none focus:border-red-600 text-sm text-white">
+                <!-- ប្រអប់បង្ហាញស្ថានភាពតំណរភ្ជាប់ -->
+                <p id="url-status" class="text-xs mt-2 text-gray-500">សូមបញ្ចូល Link វីដេអូ...</p>
             </div>
 
             <div class="text-center text-gray-500 text-xs">ឬ</div>
@@ -30,14 +65,71 @@
                 <label class="block text-sm font-medium text-gray-300 mb-2">ជ្រើសរើសឯកសារវីដេអូពីក្នុងទូរសព្ទ</label>
                 <label class="flex flex-col items-center justify-center border-2 border-dashed border-red-800/50 rounded-xl p-6 cursor-pointer hover:bg-red-950/10 transition">
                     <span class="text-sm text-red-400">ចុចទីនេះដើម្បី Upload វីដេអូ</span>
-                    <input type="file" class="hidden" accept="video/*">
+                    <input type="file" class="hidden" accept="video/*" onchange="handleFileUpload(event)">
                 </label>
+                <p id="file-status" class="text-xs mt-2 text-gray-500"></p>
             </div>
 
-            <button class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30">
+            <button id="submit-btn" disabled class="w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed">
                 ចាប់ផ្តើមបកប្រែ និងបង្កើត Subtitle
             </button>
         </div>
     </div>
+
+    <!-- JavaScript សម្រាប់គ្រប់គ្រងទំព័រ និងពិនិត្យ YouTube Link -->
+    <script>
+        function goToAuthScreen() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
+
+        function enterApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+        }
+
+        // មុខងារពិនិត្យ Link វីដេអូ (YouTube Validator)
+        function checkVideoUrl() {
+            const urlInput = document.getElementById('video-url').value.trim();
+            const statusText = document.getElementById('url-status');
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (urlInput === "") {
+                statusText.innerText = "សូមបញ្ចូល Link វីដេអូ...";
+                statusText.className = "text-xs mt-2 text-gray-500";
+                submitBtn.disabled = true;
+                submitBtn.className = "w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed";
+                return;
+            }
+
+            // Regex ពិនិត្យមើលថាតើជា Link YouTube ត្រឹមត្រូវឬអត់
+            const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+            
+            if (youtubeRegex.test(urlInput)) {
+                statusText.innerText = "✅ វីដេអូដំណើរការបានធម្មតា (YouTube Link ត្រឹមត្រូវ)";
+                statusText.className = "text-xs mt-2 text-green-400 font-medium";
+                submitBtn.disabled = false;
+                submitBtn.className = "w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30 cursor-pointer";
+            } else {
+                statusText.innerText = "❌ មិនមែនជា Link YouTube ដែលត្រឹមត្រូវ ឬវីដេអូមិនអាចបើកបានទេ";
+                statusText.className = "text-xs mt-2 text-red-400 font-medium";
+                submitBtn.disabled = true;
+                submitBtn.className = "w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed";
+            }
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            const fileStatus = document.getElementById('file-status');
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (file) {
+                fileStatus.innerText = "✅ បានជ្រើសរើសឯកសារ៖ " + file.name;
+                fileStatus.className = "text-xs mt-2 text-green-400 font-medium";
+                submitBtn.disabled = false;
+                submitBtn.className = "w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30 cursor-pointer";
+            }
+        }
+    </script>
 </body>
 </html>
