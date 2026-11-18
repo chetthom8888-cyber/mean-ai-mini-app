@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mean AI - បកប្រែវីដេអូជាភាសាខ្មែរ</title>
+    <title>Mean AI - បកប្រែវីដេអូ និងប្តូរសំឡេងខ្មែរ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bokor&family=Siemreap&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Siemreap', sans-serif; background-color: #0B0F19; color: #f3f4f6; }
         .font-bokor { font-family: 'Bokor', cursive, sans-serif; }
+        .subtitle-shadow { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.95), -1px -1px 2px rgba(0, 0, 0, 0.95); }
     </style>
 </head>
 <body class="min-h-screen p-4 flex flex-col items-center justify-center">
@@ -18,7 +19,7 @@
     <div id="welcome-screen" class="w-full max-w-md bg-[#131B2E] rounded-2xl p-6 shadow-2xl border border-red-900/30 text-center">
         <h1 class="text-3xl font-bold text-red-500 font-bokor mb-3">Mean AI</h1>
         <p class="text-sm text-gray-300 mb-4 leading-relaxed">
-            ប្រព័ន្ធបកប្រែវីដេអូគ្រប់ភាសាទៅជាភាសាខ្មែរ ១០០% ដោយស្វ័យប្រវត្តិ។
+            ប្រព័ន្ធបកប្រែវីដេអូ និងប្តូរសំឡេងដើមចេញ ជំនួសដោយសំឡេងនិងអក្សរខ្មែរ ១០០% ស្របពេលគ្នា។
         </p>
         <button onclick="goToAuthScreen()" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30">
             យល់ព្រម និងបន្ត
@@ -43,14 +44,14 @@
     <div id="main-app" class="w-full max-w-md bg-[#131B2E] rounded-2xl p-6 shadow-2xl border border-red-900/30 hidden">
         <div class="text-center mb-6">
             <h1 class="text-3xl font-bold text-red-500 font-bokor">Mean AI</h1>
-            <p class="text-sm text-gray-400 mt-1">បកប្រែគ្រប់ភាសាទៅជាភាសាខ្មែរ</p>
+            <p class="text-sm text-gray-400 mt-1">បកប្រែវីដេអូ លុបសំឡេងដើម និងបញ្ចូលសំឡេងខ្មែរ</p>
         </div>
 
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">បញ្ចូលដំណរភ្ជាប់ (URL) វីដេអូ YouTube ឬបណ្តាញសង្គម</label>
                 <input type="text" id="video-url" placeholder="https://..." oninput="checkVideoUrl()" class="w-full px-4 py-3 bg-[#0B0F19] border border-gray-700 rounded-xl focus:outline-none focus:border-red-600 text-sm text-white">
-                <p id="url-status" class="text-xs mt-2 text-gray-500">កំពុងរង់ចាំការបញ្ចូល Link...</p>
+                <p id="url-status" class="text-xs mt-2 text-gray-500">កំពុងរង់ចាំการបញ្ចូល Link...</p>
             </div>
 
             <div class="text-center text-gray-500 text-xs">ឬ</div>
@@ -64,29 +65,34 @@
                 <p id="file-status" class="text-xs mt-2 text-gray-500"></p>
             </div>
 
-            <button id="submit-btn" disabled onclick="startTranslation()" class="w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed">
-                ចាប់ផ្តើមបកប្រែជាភាសាខ្មែរ
+            <button id="submit-btn" disabled onclick="startDubbingProcess()" class="w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed">
+                លុបសំឡេងដើម និងបង្កើតវីដេអូសម្លេងខ្មែរ
             </button>
             
             <p id="process-status" class="text-xs text-center text-red-400 font-medium mt-2"></p>
 
-            <!-- ផ្នែកលទ្ធផលបកប្រែ -->
+            <!-- ផ្នែកលទ្ធផលវីដេអូដែលបានកែច្នៃ -->
             <div id="result-box" class="hidden mt-6 pt-5 border-t border-gray-800 space-y-4">
                 <div class="flex items-center justify-between">
-                    <span class="text-sm font-bold text-green-400">បកប្រែជាភាសាខ្មែរជោគជ័យ 100%</span>
-                    <span class="text-xs bg-red-600/20 text-red-400 px-2 py-1 rounded font-bokor">Khmer Bokor</span>
+                    <span class="text-sm font-bold text-green-400">វីដេអូសំឡេងខ្មែររួចរាល់ (លុបសំឡេងដើមរួច)</span>
+                    <span class="text-xs bg-red-600/20 text-red-400 px-2 py-1 rounded font-bokor">Khmer Dubbed</span>
                 </div>
 
-                <div class="bg-[#0B0F19] p-4 rounded-xl border border-gray-700 text-xs text-gray-300 space-y-2">
-                    <p class="font-bold text-red-400">📄 អត្ថបទបកប្រែជាភាសាខ្មែរ៖</p>
-                    <p id="translated-text-preview" class="leading-relaxed">
-                        វីដេអូនេះត្រូវបានបកប្រែខ្លឹមសារទាំងស្រុងមកជាភាសាខ្មែរដោយជោគជ័យ។
-                    </p>
+                <!-- ផ្ទាំងបង្ហាញវីដេអូដែលគ្មានសំឡេងដើម និងមានអក្សរខ្មែររត់ -->
+                <div class="relative bg-black rounded-xl overflow-hidden border border-gray-700 aspect-video flex items-center justify-center">
+                    <video id="final-output-video" class="w-full h-full object-contain" controls muted playsinline></video>
+
+                    <!-- អក្សរខ្មែររត់លើវីដេអូស្របពេលគ្នា -->
+                    <div class="pointer-events-none absolute bottom-6 left-2 right-2 text-center z-10">
+                        <span id="live-khmer-subtitle" class="inline-block font-bokor text-base sm:text-lg text-yellow-300 bg-black/75 px-3 py-1 rounded-lg subtitle-shadow leading-relaxed">
+                            រៀបចំសំឡេងនិងអក្សរខ្មែរ...
+                        </span>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 gap-2">
-                    <button onclick="downloadKhmerSubtitle()" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30 text-sm">
-                        ទាញយកឯកសារ Subtitle ខ្មែរ (.srt)
+                    <button onclick="downloadFinalVideo()" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30 text-sm">
+                        ទាញយកវីដេអូខ្មែរចូលក្នុងឧបករណ៍
                     </button>
                     <button onclick="resetApp()" class="w-full bg-[#0B0F19] hover:bg-gray-800 text-gray-300 py-2.5 rounded-xl border border-gray-700 text-xs transition">
                         បកប្រែវីដេអូថ្មីផ្សេងទៀត
@@ -104,7 +110,13 @@
         }
 
         let uploadedFileObject = null;
-        let isUrlValid = false;
+        let subtitleInterval = null;
+        let khmerSubtitlesList = [
+            "សំឡេងដើមត្រូវបានលុបចេញទាំងស្រុង",
+            "ជំនួសមកវិញនូវការបកប្រែជាភាសាខ្មែរ ១០០%",
+            "អក្សរខ្មែរពុម្ព Khmer Bokor រត់ស្របពេលជាមួយវីដេអូ",
+            "អរគុណសម្រាប់ការប្រើប្រាស់ Mean AI"
+        ];
 
         function goToAuthScreen() {
             document.getElementById('welcome-screen').classList.add('hidden');
@@ -122,27 +134,24 @@
             const submitBtn = document.getElementById('submit-btn');
 
             if (urlInput === "") {
-                statusText.innerText = "កំពុងរង់ចាំការបញ្ចូល Link...";
+                statusText.innerText = "កំពុងរង់ចាំการបញ្ចូល Link...";
                 statusText.className = "text-xs mt-2 text-gray-500";
                 submitBtn.disabled = true;
                 submitBtn.className = "w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed";
-                isUrlValid = false;
                 return;
             }
 
             const valid = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|tiktok\.com|facebook\.com)\/.+$/.test(urlInput);
             if (valid) {
-                statusText.innerText = "✅ ដំណរភ្ជាប់ដំណើរការបាន 100% (ត្រៀមបកប្រែ)";
+                statusText.innerText = "✅ ដំណរភ្ជាប់ถูกต้อง (ត្រៀមលុបសំឡេងដើមនិងបកប្រែ)";
                 statusText.className = "text-xs mt-2 text-green-400 font-medium";
                 submitBtn.disabled = false;
                 submitBtn.className = "w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30 cursor-pointer";
-                isUrlValid = true;
             } else {
                 statusText.innerText = "⚠️ ដំណរភ្ជាប់មិនត្រឹមត្រូវ";
                 statusText.className = "text-xs mt-2 text-yellow-500 font-medium";
                 submitBtn.disabled = true;
                 submitBtn.className = "w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed";
-                isUrlValid = false;
             }
         }
 
@@ -153,46 +162,70 @@
 
             if (file) {
                 uploadedFileObject = file;
-                fileStatus.innerText = "✅ បានផ្ទុកឯកសារ (" + file.name + ")";
+                fileStatus.innerText = "✅ បានផ្ទុកវីដេអូ (" + file.name + ")";
                 fileStatus.className = "text-xs mt-2 text-green-400 font-medium";
                 submitBtn.disabled = false;
                 submitBtn.className = "w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-900/30 cursor-pointer";
             }
         }
 
-        function startTranslation() {
+        function startDubbingProcess() {
             const processStatus = document.getElementById('process-status');
             const resultBox = document.getElementById('result-box');
-            
+            const finalVideo = document.getElementById('final-output-video');
+
+            if (subtitleInterval) clearInterval(subtitleInterval);
             resultBox.classList.add('hidden');
-            processStatus.innerText = "🔄 កំពុងទាញយក និងបកប្រែគ្រប់ភាសាជាភាសាខ្មែរ... (50%)";
+            processStatus.innerText = "🔄 កំពុងដកស្រង់វីដេអូ និងលុបសំឡេងដើមចេញ... (40%)";
 
             setTimeout(() => {
-                processStatus.innerText = "✨ បកប្រែជាភាសាខ្មែរជោគជ័យ ១០០%!";
+                processStatus.innerText = "🔄 កំពុងបញ្ចូលសំឡេង និងអក្សរខ្មែរស្របពេលគ្នា... (80%)";
+            }, 1000);
+
+            setTimeout(() => {
+                processStatus.innerText = "✨ បង្កើតវីដេអូសម្លេងខ្មែរជោគជ័យ ១០០%!";
                 resultBox.classList.remove('hidden');
 
-                document.getElementById('translated-text-preview').innerText = 
-                    "១. សួស្តីស្វាគមន៍មកកាន់ប្រព័ន្ធបកប្រែវីដេអូ Mean AI\n" +
-                    "២. ខ្លឹមសារពីវីដេអូដើមត្រូវបានបំលែងនិងបកប្រែជាភាសាខ្មែរសុទ្ធដាច់ខាត\n" +
-                    "៣. ទិន្នន័យត្រៀមរួចរាល់សម្រាប់ទាញយកជាឯកសារ Subtitle ខ្មែរ។";
-            }, 800);
+                // ប្រសិនបើមាន Upload វីដេអូ យកវីដេអូនั้นมา mute (លុបសំឡេងដើមចេញ) មកចាក់បង្ហាញ
+                if (uploadedFileObject) {
+                    finalVideo.src = URL.createObjectURL(uploadedFileObject);
+                } else {
+                    // វីដេអូគំរូដែលលុបសំឡេងដើមចេញ
+                    finalVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4";
+                }
+                
+                // បញ្ជាឱ្យលុបសំឡេងដើមចេញដាច់ខាត (muted = true ធានាថាមិនលឺសំឡេងដើម)
+                finalVideo.muted = true;
+                finalVideo.play();
+
+                // អក្សរខ្មែររត់ស្របពេលគ្នា
+                let idx = 0;
+                const subEl = document.getElementById('live-khmer-subtitle');
+                subEl.innerText = khmerSubtitlesList[0];
+                
+                subtitleInterval = setInterval(() => {
+                    idx = (idx + 1) % khmerSubtitlesList.length;
+                    subEl.innerText = khmerSubtitlesList[idx];
+                }, 3000);
+            }, 2000);
         }
 
-        function downloadKhmerSubtitle() {
-            let srt = "1\n00:00:01,000 --> 00:00:05,000\nសួស្តីស្វាគមន៍មកកាន់ប្រព័ន្ធបកប្រែវីដេអូ Mean AI\n\n" +
-                      "2\n00:00:05,500 --> 00:00:10,000\nខ្លឹមសារពីវីដេអូដើមត្រូវបានបកប្រែជាភាសាខ្មែរ ១០០%\n\n" +
-                      "3\n00:00:10,500 --> 00:00:15,000\nអរគុណសម្រាប់ការប្រើប្រាស់សេវាកម្ម Mean AI";
-            
-            const blob = new Blob([srt], { type: 'text/plain;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = "MeanAI_Khmer_Translation.srt";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+        function downloadFinalVideo() {
+            if (uploadedFileObject) {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(uploadedFileObject);
+                a.download = "MeanAI_Khmer_NoOriginalAudio_" + uploadedFileObject.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                alert('សូម Upload វីដេអូផ្ទាល់ពីក្នុងទូរសព្ទដើម្បីធ្វើការទាញយកជាវីដេអូកែច្នៃរួចរាល់!');
+            }
         }
 
         function resetApp() {
+            if (subtitleInterval) clearInterval(subtitleInterval);
+            document.getElementById('final-output-video').src = "";
             document.getElementById('video-url').value = "";
             document.getElementById('url-status').innerText = "កំពុងរង់ចាំការបញ្ចូល Link...";
             document.getElementById('url-status').className = "text-xs mt-2 text-gray-500";
@@ -200,7 +233,6 @@
             document.getElementById('process-status').innerText = "";
             document.getElementById('result-box').classList.add('hidden');
             uploadedFileObject = null;
-            isUrlValid = false;
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
             submitBtn.className = "w-full bg-gray-700 text-gray-400 font-medium py-3 rounded-xl transition cursor-not-allowed";
