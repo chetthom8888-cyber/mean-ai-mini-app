@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Khmer Video Dub Desktop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bokor&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #061021;
+      --bg-panel: #0b1c38;
+      --bg-card: #11284f;
+      --bg-input: #071429;
+      --border-line: #204278;
+      --text-main: #eef5ff;
+      --text-muted: #9bb3d6;
+      --accent: #1c5ed4;
+      --accent-hover: #2a73f5;
+      --danger: #8c2337;
+      --success: #165b4c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Bokor", "Khmer Bokor", serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 18px;
+      line-height: 1.7;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-line);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-line);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    .title {
+      font-size: 28px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-line);
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 14px;
+    }
+
+    .card:last-child {
+      margin-bottom: 0;
+    }
+
+    .card-title {
+      font-size: 19px;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-line);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="file"],
+    select,
+    textarea {
+      width: 100%;
+      background-color: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border-line);
+      border-radius: 5px;
+      padding: 9px 11px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent-hover);
+    }
+
+    textarea {
+      min-height: 105px;
+      resize: vertical;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      background-color: var(--accent);
+      color: var(--text-main);
+      border: 1px solid var(--border-line);
+      border-radius: 5px;
+      padding: 9px 14px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: var(--accent-hover);
+    }
+
+    button.secondary {
+      background-color: var(--bg-input);
+    }
+
+    button.secondary:hover {
+      background-color: #102547;
+    }
+
+    button.success {
+      background-color: var(--success);
+    }
+
+    button.danger {
+      background-color: var(--danger);
+    }
+
+    .video-stage {
+      background-color: #040a14;
+      border: 1px solid var(--border-line);
+      border-radius: 6px;
+      min-height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    video {
+      width: 100%;
+      max-height: 340px;
+      display: none;
+    }
+
+    .placeholder {
+      color: var(--text-muted);
+      font-size: 15px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .overlay-caption {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      background-color: rgba(5, 13, 28, 0.88);
+      border: 1px solid var(--border-line);
+      border-radius: 5px;
+      padding: 8px 12px;
+      text-align: center;
+      font-size: 17px;
+      display: none;
+    }
+
+    .status-box {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-line);
+      border-radius: 5px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-line);
+      border-radius: 5px;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--border-line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #0e2242;
+      position: sticky;
+      top: 0;
+      font-weight: normal;
+    }
+
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .row-actions button {
+      padding: 5px 8px;
+      font-size: 13px;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 20px;
+    }
+
+    .audio-player-wrap {
+      margin-top: 10px;
+      display: none;
+    }
+
+    audio {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div>
+        <div class="title">Khmer Video Dub Desktop</div>
+        <div class="subtitle">កម្មវិធីបកប្រែ Script ទៅជាភាសាខ្មែរ រៀបចំពេលវេលាវីដេអូ និងថតសំឡេងលើកុំព្យូទ័រ</div>
+      </div>
+      <div class="subtitle">របៀបប្រើ៖ កុំព្យូទ័រ (Desktop Browser)</div>
+    </div>
+
+    <div class="main-grid">
+      <div>
+        <div class="card">
+          <div class="card-title">១. បញ្ចូល និងបកប្រែអត្ថបទ</div>
+
+          <div class="form-group">
+            <label for="langFrom">ភាសាដើម</label>
+            <select id="langFrom">
+              <option value="en">អង់គ្លេស (English)</option>
+              <option value="zh-CN">ចិន (Chinese)</option>
+              <option value="vi">វៀតណាម (Vietnamese)</option>
+              <option value="ja">ជប៉ុន (Japanese)</option>
+              <option value="ko">កូរ៉េ (Korean)</option>
+              <option value="fr">បារាំង (French)</option>
+              <option value="km">ខ្មែរ (Khmer)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="rawText">អត្ថបទដើម (អាចដាក់ច្រើនប្រយោគសម្រាប់បំបែកដោយស្វ័យប្រវត្តិ)</label>
+            <textarea id="rawText" placeholder="វាយ ឬបិទភ្ជាប់អត្ថបទដើមនៅទីនេះ..."></textarea>
+          </div>
+
+          <div class="btn-group">
+            <button type="button" id="translateBtn">បកប្រែទៅជាខ្មែរ</button>
+            <button type="button" class="success" id="autoSplitBtn">បកប្រែ និងបំបែកជាបន្ទាត់ពេលវេលា</button>
+            <button type="button" class="secondary" id="clearBtn">សម្អាត</button>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label for="khmerOutput">អត្ថបទភាសាខ្មែរ (អាចកែសម្រួលបាន)</label>
+            <textarea id="khmerOutput" placeholder="អត្ថបទភាសាខ្មែរនឹងបង្ហាញនៅទីនេះ..."></textarea>
+          </div>
+
+          <div class="grid-3">
+            <div class="form-group">
+              <label for="startSec">ចាប់ផ្តើម (វិនាទី)</label>
+              <input type="number" id="startSec" step="0.5" min="0" value="0" />
+            </div>
+            <div class="form-group">
+              <label for="endSec">បញ្ចប់ (វិនាទី)</label>
+              <input type="number" id="endSec" step="0.5" min="0.5" value="5" />
+            </div>
+            <div class="form-group">
+              <label for="stepSec">រយៈពេលក្នុង១បន្ទាត់ (វិនាទី)</label>
+              <input type="number" id="stepSec" step="0.5" min="1" value="4" />
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button type="button" id="addSingleBtn">បន្ថែម១បន្ទាត់ចូលតារាង</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">២. សំឡេងអាន និងថតសំឡេង Dubbing</div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="voiceList">ជ្រើសរើសសំឡេងក្នុងកុំព្យូទ័រ</label>
+              <select id="voiceList">
+                <option value="">សំឡេងលំនាំដើម</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="rateSelect">ល្បឿននិយាយ</label>
+              <select id="rateSelect">
+                <option value="0.8">យឺត (0.8x)</option>
+                <option value="1.0" selected>ធម្មតា (1.0x)</option>
+                <option value="1.15">លឿនបន្តិច (1.15x)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button type="button" id="speakBtn">សាកល្បងអានសំឡេង</button>
+            <button type="button" class="secondary" id="stopSpeakBtn">បញ្ឈប់ការអាន</button>
+            <button type="button" class="success" id="recordMicBtn">ថតសំឡេង Dubbing (Microphone)</button>
+            <button type="button" class="danger" id="stopRecordBtn" disabled>បញ្ឈប់ការថត</button>
+          </div>
+
+          <div class="audio-player-wrap" id="audioWrap">
+            <label style="margin-top: 10px;">សំឡេងដែលបានថតទុក</label>
+            <audio id="recordedAudio" controls></audio>
+            <div class="btn-group">
+              <button type="button" id="downloadAudioBtn">ទាញយកឯកសារសំឡេង</button>
+            </div>
+          </div>
+
+          <div class="status-box" id="statusBox">ត្រៀមរួចរាល់សម្រាប់ប្រើប្រាស់លើកុំព្យូទ័រ</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">៣. មើលវីដេអូ និងធ្វើសមកាលកម្ម Subtitle</div>
+
+          <div class="form-group">
+            <label for="videoInput">ជ្រើសរើសឯកសារវីដេអូពីកុំព្យូទ័រ</label>
+            <input type="file" id="videoInput" accept="video/*" />
+          </div>
+
+          <div class="video-stage">
+            <video id="videoPlayer" controls></video>
+            <div class="placeholder" id="videoPlaceholder">
+              ជ្រើសរើសវីដេអូដើម្បីមើល និងសាកល្បងបង្ហាញអត្ថបទខ្មែរតាមពេលវេលា
+            </div>
+            <div class="overlay-caption" id="videoCaption"></div>
+          </div>
+
+          <div class="btn-group" style="margin-bottom: 12px;">
+            <button type="button" id="playSequenceBtn">ចាក់បញ្ជីអត្ថបទជាបន្តបន្ទាប់</button>
+            <button type="button" class="secondary" id="exportSrtBtn">ទាញយកឯកសារ (.SRT)</button>
+            <button type="button" class="danger" id="clearTableBtn">លុបតារាងទាំងអស់</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ចាប់ផ្តើម (វិនាទី)</th>
+                  <th>បញ្ចប់ (វិនាទី)</th>
+                  <th>អត្ថបទភាសាខ្មែរ</th>
+                  <th>សកម្មភាព</th>
+                </tr>
+              </thead>
+              <tbody id="subTableBody">
+                <tr>
+                  <td colspan="4" class="empty-msg">មិនទាន់មានបន្ទាត់អត្ថបទក្នុងតារាងទេ</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const segments = [];
+    let voices = [];
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordedBlobUrl = "";
+    let isPlayingSequence = false;
+
+    const langFromEl = document.getElementById("langFrom");
+    const rawTextEl = document.getElementById("rawText");
+    const khmerOutputEl = document.getElementById("khmerOutput");
+    const startSecEl = document.getElementById("startSec");
+    const endSecEl = document.getElementById("endSec");
+    const stepSecEl = document.getElementById("stepSec");
+    const voiceListEl = document.getElementById("voiceList");
+    const rateSelectEl = document.getElementById("rateSelect");
+    const statusBoxEl = document.getElementById("statusBox");
+    const videoInputEl = document.getElementById("videoInput");
+    const videoPlayerEl = document.getElementById("videoPlayer");
+    const videoPlaceholderEl = document.getElementById("videoPlaceholder");
+    const videoCaptionEl = document.getElementById("videoCaption");
+    const subTableBodyEl = document.getElementById("subTableBody");
+    const recordMicBtnEl = document.getElementById("recordMicBtn");
+    const stopRecordBtnEl = document.getElementById("stopRecordBtn");
+    const audioWrapEl = document.getElementById("audioWrap");
+    const recordedAudioEl = document.getElementById("recordedAudio");
+
+    function setStatus(msg) {
+      statusBoxEl.textContent = msg;
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function populateVoices() {
+      if (!("speechSynthesis" in window)) return;
+      voices = window.speechSynthesis.getVoices();
+      const prev = voiceListEl.value;
+      voiceListEl.innerHTML = '<option value="">សំឡេងលំនាំដើម</option>';
+      voices.forEach((v, i) => {
+        const opt = document.createElement("option");
+        opt.value = String(i);
+        opt.textContent = `${v.name} (${v.lang})`;
+        voiceListEl.appendChild(opt);
+      });
+      if (prev) voiceListEl.value = prev;
+    }
+
+    if ("speechSynthesis" in window) {
+      populateVoices();
+      window.speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    function speakText(text, onDone) {
+      const clean = (text || "").trim();
+      if (!clean) {
+        setStatus("សូមបញ្ចូលអត្ថបទភាសាខ្មែរជាមុនសិន");
+        if (onDone) onDone();
+        return;
+      }
+
+      showCaption(clean);
+
+      if (!("speechSynthesis" in window)) {
+        setStatus("Browser នេះមិនគាំទ្រការអានសំឡេងស្វ័យប្រវត្តិទេ");
+        if (onDone) onDone();
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(clean);
+      utter.lang = "km-KH";
+      utter.rate = parseFloat(rateSelectEl.value) || 1.0;
+
+      const idx = voiceListEl.value;
+      if (idx !== "" && voices[Number(idx)]) {
+        utter.voice = voices[Number(idx)];
+      } else {
+        const kmVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith("km"));
+        if (kmVoice) utter.voice = kmVoice;
+      }
+
+      utter.onstart = () => setStatus("កំពុងអានសំឡេង...");
+      utter.onend = () => {
+        setStatus("បានបញ្ចប់ការអានសំឡេង");
+        if (onDone) onDone();
+      };
+      utter.onerror = () => {
+        setStatus("មិនអាចអានសំឡេងខ្មែរលើប្រព័ន្ធនេះបាន (សូមប្រើមុខងារថតសំឡេង Microphone ជំនួស)");
+        if (onDone) onDone();
+      };
+
+      window.speechSynthesis.speak(utter);
+    }
+
+    function showCaption(text) {
+      if (!text) {
+        videoCaptionEl.style.display = "none";
+        videoCaptionEl.textContent = "";
+        return;
+      }
+      videoCaptionEl.textContent = text;
+      videoCaptionEl.style.display = "block";
+    }
+
+    async function translateSegment(text, fromLang) {
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(fromLang)}|km`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data && data.responseData && data.responseData.translatedText) {
+        return data.responseData.translatedText;
+      }
+      return text;
+    }
+
+    async function handleTranslateOnly() {
+      const text = rawTextEl.value.trim();
+      if (!text) {
+        setStatus("សូមវាយ ឬបិទភ្ជាប់អត្ថបទដើមជាមុនសិន");
+        return;
+      }
+      if (langFromEl.value === "km") {
+        khmerOutputEl.value = text;
+        setStatus("អត្ថបទជាភាសាខ្មែររួចរាល់");
+        return;
+      }
+      setStatus("កំពុងបកប្រែអត្ថបទទៅជាភាសាខ្មែរ...");
+      try {
+        khmerOutputEl.value = await translateSegment(text, langFromEl.value);
+        setStatus("បកប្រែបានជោគជ័យ");
+      } catch (e) {
+        setStatus("បរាជ័យក្នុងការតភ្ជាប់ទៅកាន់សេវាបកប្រែ");
+      }
+    }
+
+    function splitSentences(text) {
+      return text
+        .split(/\n+|(?<=[.!?។៕])\s+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    async function handleTranslateAndSplit() {
+      const raw = rawTextEl.value.trim();
+      if (!raw) {
+        setStatus("សូមបញ្ចូលអត្ថបទដើមជាមុនសិន");
+        return;
+      }
+
+      const chunks = splitSentences(raw);
+      const step = Math.max(1, parseFloat(stepSecEl.value) || 4);
+      let cursor = Math.max(0, parseFloat(startSecEl.value) || 0);
+
+      setStatus(`កំពុងបកប្រែ និងបំបែក ${chunks.length} បន្ទាត់...`);
+      const translatedAll = [];
+
+      try {
+        for (let i = 0; i < chunks.length; i++) {
+          const kmText = langFromEl.value === "km"
+            ? chunks[i]
+            : await translateSegment(chunks[i], langFromEl.value);
+
+          const s = Number(cursor.toFixed(2));
+          const e = Number((cursor + step).toFixed(2));
+          segments.push({ start: s, end: e, text: kmText });
+          translatedAll.push(kmText);
+          cursor = e;
+        }
+
+        khmerOutputEl.value = translatedAll.join("\n");
+        renderSegmentsTable();
+        setStatus(`បានបន្ថែម ${chunks.length} បន្ទាត់ចូលតារាងរួចរាល់`);
+      } catch (err) {
+        setStatus("មានបញ្ហាពេលបកប្រែជាបន្ទាត់");
+      }
+    }
+
+    function renderSegmentsTable() {
+      if (segments.length === 0) {
+        subTableBodyEl.innerHTML = '<tr><td colspan="4" class="empty-msg">មិនទាន់មានបន្ទាត់អត្ថបទក្នុងតារាងទេ</td></tr>';
+        return;
+      }
+
+      subTableBodyEl.innerHTML = segments
+        .map((item, idx) => `
+          <tr>
+            <td>${item.start}</td>
+            <td>${item.end}</td>
+            <td>${escapeHtml(item.text)}</td>
+            <td>
+              <div class="row-actions">
+                <button type="button" onclick="playSegment(${idx})">អាន</button>
+                <button type="button" class="secondary" onclick="editSegment(${idx})">កែ</button>
+                <button type="button" class="danger" onclick="removeSegment(${idx})">លុប</button>
+              </div>
+            </td>
+          </tr>
+        `)
+        .join("");
+    }
+
+    window.playSegment = function(idx) {
+      const seg = segments[idx];
+      if (!seg) return;
+      if (videoPlayerEl.src && !videoPlayerEl.paused) {
+        videoPlayerEl.currentTime = seg.start;
+      }
+      speakText(seg.text);
+    };
+
+    window.editSegment = function(idx) {
+      const seg = segments[idx];
+      if (!seg) return;
+      startSecEl.value = seg.start;
+      endSecEl.value = seg.end;
+      khmerOutputEl.value = seg.text;
+      segments.splice(idx, 1);
+      renderSegmentsTable();
+      setStatus("បានទាញបន្ទាត់មកកែសម្រួល");
+    };
+
+    window.removeSegment = function(idx) {
+      segments.splice(idx, 1);
+      renderSegmentsTable();
+      setStatus("បានលុបបន្ទាត់ចេញពីតារាង");
+    };
+
+    function formatSrtSeconds(sec) {
+      const total = Math.max(0, Number(sec) || 0);
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = Math.floor(total % 60);
+      const ms = Math.floor((total - Math.floor(total)) * 1000);
+      const pad = (n, len = 2) => String(n).padStart(len, "0");
+      return `${pad(h)}:${pad(m)}:${pad(s)},${pad(ms, 3)}`;
+    }
+
+    function exportSrtFile() {
+      if (segments.length === 0) {
+        setStatus("គ្មានទិន្នន័យក្នុងតារាងសម្រាប់ទាញយក .SRT ទេ");
+        return;
+      }
+
+      const content = segments
+        .map((seg, i) => `${i + 1}\n${formatSrtSeconds(seg.start)} --> ${formatSrtSeconds(seg.end)}\n${seg.text}\n`)
+        .join("\n");
+
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "khmer-video-dub.srt";
+      link.click();
+      URL.revokeObjectURL(url);
+      setStatus("បានទាញយកឯកសារ khmer-video-dub.srt រួចរាល់");
+    }
+
+    async function startMicrophoneRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setStatus("Browser នេះមិនគាំទ្រការថតសំឡេងតាម Microphone ទេ");
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) {
+            recordedChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          if (recordedBlobUrl) URL.revokeObjectURL(recordedBlobUrl);
+          recordedBlobUrl = URL.createObjectURL(blob);
+          recordedAudioEl.src = recordedBlobUrl;
+          audioWrapEl.style.display = "block";
+          stream.getTracks().forEach(t => t.stop());
+          setStatus("បានថតសំឡេង Dubbing រួចរាល់ អ្នកអាចស្តាប់ ឬទាញយកបាន");
+        };
+
+        mediaRecorder.start();
+        recordMicBtnEl.disabled = true;
+        stopRecordBtnEl.disabled = false;
+        setStatus("កំពុងថតសំឡេង Dubbing... សូមចុចបញ្ឈប់ពេលរួចរាល់");
+      } catch (err) {
+        setStatus("មិនអាចបើក Microphone បាន សូមពិនិត្យការអនុញ្ញាតក្នុង Browser");
+      }
+    }
+
+    function stopMicrophoneRecording() {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+      }
+      recordMicBtnEl.disabled = false;
+      stopRecordBtnEl.disabled = true;
+    }
+
+    function playAllSequence() {
+      if (segments.length === 0) {
+        setStatus("សូមបន្ថែមបន្ទាត់អត្ថបទចូលតារាងជាមុនសិន");
+        return;
+      }
+      isPlayingSequence = true;
+      let index = 0;
+
+      if (videoPlayerEl.src) {
+        videoPlayerEl.currentTime = segments[0].start || 0;
+        videoPlayerEl.play().catch(() => {});
+      }
+
+      function nextStep() {
+        if (!isPlayingSequence || index >= segments.length) {
+          isPlayingSequence = false;
+          showCaption("");
+          setStatus("បានចាក់បញ្ចប់បញ្ជីអត្ថបទ");
+          return;
+        }
+        const current = segments[index];
+        index++;
+        speakText(current.text, nextStep);
+      }
+
+      nextStep();
+    }
+
+    videoPlayerEl.addEventListener("timeupdate", () => {
+      const t = videoPlayerEl.currentTime;
+      const active = segments.find(s => t >= s.start && t <= s.end);
+      showCaption(active ? active.text : "");
+    });
+
+    videoInputEl.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      videoPlayerEl.src = url;
+      videoPlayerEl.style.display = "block";
+      videoPlaceholderEl.style.display = "none";
+      setStatus("បានផ្ទុកវីដេអូ៖ " + file.name);
+    });
+
+    document.getElementById("translateBtn").addEventListener("click", handleTranslateOnly);
+    document.getElementById("autoSplitBtn").addEventListener("click", handleTranslateAndSplit);
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      rawTextEl.value = "";
+      khmerOutputEl.value = "";
+      setStatus("បានសម្អាតប្រអប់អត្ថបទ");
+    });
+
+    document.getElementById("addSingleBtn").addEventListener("click", () => {
+      const text = khmerOutputEl.value.trim();
+      if (!text) {
+        setStatus("សូមបញ្ចូលអត្ថបទភាសាខ្មែរមុនបន្ថែម");
+        return;
+      }
+      segments.push({
+        start: Number(parseFloat(startSecEl.value) || 0).toFixed(2),
+        end: Number(parseFloat(endSecEl.value) || 5).toFixed(2),
+        text
+      });
+      renderSegmentsTable();
+      setStatus("បានបន្ថែម១បន្ទាត់ចូលតារាង");
+    });
+
+    document.getElementById("speakBtn").addEventListener("click", () => speakText(khmerOutputEl.value));
+    document.getElementById("stopSpeakBtn").addEventListener("click", () => {
+      isPlayingSequence = false;
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      showCaption("");
+      setStatus("បានបញ្ឈប់ការអាន");
+    });
+
+    recordMicBtnEl.addEventListener("click", startMicrophoneRecording);
+    stopRecordBtnEl.addEventListener("click", stopMicrophoneRecording);
+
+    document.getElementById("downloadAudioBtn").addEventListener("click", () => {
+      if (!recordedBlobUrl) return;
+      const a = document.createElement("a");
+      a.href = recordedBlobUrl;
+      a.download = "khmer-dub-audio.webm";
+      a.click();
+      setStatus("បានទាញយកឯកសារសំឡេង khmer-dub-audio.webm");
+    });
+
+    document.getElementById("playSequenceBtn").addEventListener("click", playAllSequence);
+    document.getElementById("exportSrtBtn").addEventListener("click", exportSrtFile);
+    document.getElementById("clearTableBtn").addEventListener("click", () => {
+      segments.length = 0;
+      renderSegmentsTable();
+      showCaption("");
+      setStatus("បានលុបបន្ទាត់ទាំងអស់ក្នុងតារាង");
+    });
+  </script>
+</body>
+</html>
